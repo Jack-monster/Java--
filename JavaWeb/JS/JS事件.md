@@ -81,3 +81,30 @@
 - **form**标签的 onsubmit属性通过使用`onsubmit="return register()"`来获得register函数的返回值<br/>这样当表单内容不完整时就不会提交执行action
 ***
 ###二、动态注册示例
+1. ```html
+      html代码
+      <h2>用户注册2</h2>
+      <!--动态提交-->
+      <form action="ok.html" autocomplete="on" id="form">
+         u: <input type="text" name="username"><br/>
+         p: <input type="password" name="pwd"><br/>
+         <input type="submit" value="注册用户">
+      </form>
+   ```
+2. ```javascript
+      js代码
+      window.onload = function() {
+         let form = document.getElementById("form");
+            form.onsubmit = function () {
+                console.log(form.username.value);
+                console.log(form.pwd.value);
+                if (form.username.value == '' || form.pwd.value == '') {
+                    alert("请填写完整信息")
+                    return false
+                }
+
+                return true
+            }
+      }
+   ```
+- 动态绑定的onsubmit，先给`form`对象赋予一个id值，再通过js代码获得相应的form对象，再对其进行操作即可
