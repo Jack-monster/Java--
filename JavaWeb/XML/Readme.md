@@ -111,8 +111,74 @@ public void listStus() throws DocumentException {
         System.out.println("id = " + firstStu.attributeValue("id"));
     }
 ```
-### 5.5 don4j增删改查
+### 5.5 dom4j增删改查
 1. 增加一个元素
 ```java
+    @Test
+    public void addOne() throws DocumentException, IOException {
+        //得到xml文件对应的dom对象以及根节点
+        SAXReader saxReader = new SAXReader();
+        Document document = saxReader.read(new File("students.xml"));
+        Element rootElement = document.getRootElement();
 
+        //利用DocumentHelper以及create、set、add方法创建一个元素节点
+        Element newStu = DocumentHelper.createElement("student");
+        //设置属性 键值对
+        newStu.addAttribute("id","300");
+
+        Element name = DocumentHelper.createElement("name");
+        name.setText("mary");
+        newStu.add(name);
+
+        Element age = DocumentHelper.createElement("age");
+        age.setText("20");
+        newStu.add(age);
+
+        Element gender = DocumentHelper.createElement("gender");
+        gender.setText("女");
+        newStu.add(gender);
+
+        //将创建的元素加到对应的母节点上
+        rootElement.add(newStu);
+
+        //设置输出格式以及文件输出流
+
+        OutputFormat prettyPrint = OutputFormat.createPrettyPrint();
+        prettyPrint.setEncoding("utf-8");
+
+        XMLWriter xmlWriter = new XMLWriter(new FileOutputStream(new File("students.xml")), prettyPrint);
+        xmlWriter.write(document);
+        xmlWriter.close();
+
+        //查看是否正确插入
+        listStus();
+
+    }
+```
+2. 删除一个元素
+```java
+    @Test
+    public void deleteOne() throws DocumentException, IOException {
+        SAXReader saxReader = new SAXReader();
+        Document document = saxReader.read(new File("students.xml"));
+
+        //找到目标元素
+        Object o = document.getRootElement().elements("student").get(2);
+        Element student = (Element)o;
+
+        //调用自身的attribute属性以及remove方法删除属性
+        student.remove(student.attribute("id"));
+
+        //通过找到母元素，调用母元素的remove方法删除对应的元素
+        student.getParent().remove(student);
+
+        OutputFormat prettyPrint = OutputFormat.createPrettyPrint();
+        prettyPrint.setEncoding("utf-8");
+
+        XMLWriter xmlWriter = new XMLWriter(new FileOutputStream(new File("students.xml")),prettyPrint);
+        xmlWriter.write(document);
+        xmlWriter.close();
+
+        listStus();
+    }
 ```
