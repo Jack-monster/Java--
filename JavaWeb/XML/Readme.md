@@ -53,7 +53,7 @@
     ]]>
 ```
 ***
-## 5. DOM4J--XML解析技术
+## 5.DOM4J--XML解析技术
 ### 5.1 解析原理
 1. 不管是html文件还是xml文件都是标记型文档，都可以使用w3c组织制定的dom技术来解析
 2. 将文档映射成dom对象后可以通过java技术对dom对象进行相关操作
@@ -180,5 +180,29 @@ public void listStus() throws DocumentException {
         xmlWriter.close();
 
         listStus();
+    }
+```
+## 6.利用dom4j通过读取xml创建java对象
+```java
+    @Test
+    public void createObjectByXML() throws DocumentException {
+        SAXReader saxReader = new SAXReader();
+        Document document = saxReader.read(new File("students.xml"));
+        List<Element> students = document.getRootElement().elements("student");
+        ArrayList<Student> studentList = new ArrayList<>();
+
+        //利用dom4j解析技术获得每一个student节点下的属性，
+        // 并创建对象存储到arraylist中
+        for (Element student:students) {
+            Student Student = new Student(student.element("name").getText(),
+                    Integer.parseInt(student.element("age").getText()),
+                    student.element("gender").getText());
+            studentList.add(Student);
+        }
+
+        //显示是否创建成功
+        for (Student student: studentList) {
+            System.out.println(student);
+        }
     }
 ```
