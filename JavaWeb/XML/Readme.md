@@ -20,9 +20,15 @@
         <age>18</age>
         <gender>男</gender>
     </student>
+    <student id="200">
+        <name>tom</name>
+        <age>19</age>
+        <gender>男</gender>
+    </student>
 </students>
 ```
 同理xml文件也可以映射成一个DOM
+![document数据结构示意图](image.png)
 ***
 ## 4.XML文件的构成
 1. 文档声明
@@ -51,3 +57,62 @@
 ### 5.1 解析原理
 1. 不管是html文件还是xml文件都是标记型文档，都可以使用w3c组织制定的dom技术来解析
 2. 将文档映射成dom对象后可以通过java技术对dom对象进行相关操作
+### 5.2 加载xml文件
+```java
+public class Dom4j_ {
+    //加载document
+    public Document loadXML() throws DocumentException {
+        SAXReader reader = new SAXReader();//创建解析器
+        Document document = reader.read(new File(url));//通过文件对象解析得到document对象
+        return document;
+    }
+}
+```
+### 5.3 遍历xml指定元素
+```java
+public void listStus() throws DocumentException {
+        //得到解析器
+        SAXReader saxReader = new SAXReader();
+        //通过解析器得到对应的dom对象
+        Document document = saxReader.read(new File("students.xml"));
+        //得到根元素，即<students></students>
+        Element rootElement = document.getRootElement();
+        //得到根元素的所有标签为student的元素
+        List<Element> student = rootElement.elements("student");
+        for (Element element: student
+             ) {
+            //在每个student元素下再寻找name元素、age元素、gender元素得到信息
+            Element nameEle = element.element("name");
+            String name = nameEle.getText();
+            Element ageELe = element.element("age");
+            String age = ageELe.getText();
+            Element genderEle = element.element("gender");
+            String gender = genderEle.getText();
+            System.out.println("学生信息 =" + name + " " + age + " " +
+                    gender );
+        }
+    }
+```
+### 5.4 指定读取一个元素
+```java
+    @Test
+    public void readOne() throws DocumentException {
+        SAXReader saxReader = new SAXReader();
+        Document document = saxReader.read(new File("students.xml"));
+        Element rootElement = document.getRootElement();
+        List students = rootElement.elements("student");
+        //得到元素列表后通过list的get操作，利用索引得到指定元素
+        Element firstStu = (Element)students.get(0);
+
+        System.out.println("学生信息 =" + firstStu.element("name").getText() + " " + firstStu.element("age").getText() + " " +
+                firstStu.element("gender").getText() );
+
+        //得到element的属性
+        System.out.println("id = " + firstStu.attributeValue("id"));
+    }
+```
+### 5.5 don4j增删改查
+1. 增加一个元素
+```java
+
+```
