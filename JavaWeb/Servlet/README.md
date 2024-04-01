@@ -120,3 +120,71 @@ https://tomcat.apache.org/tomcat-8.5-doc/servletapi/index.html
 3. 将对象A，B传入到Servlet的Service函数中,对其进行处理
 ### Servlet销毁-deploy()
 1. 服务器关闭或重启时销毁所有Servlet前调用deploy()方法
+## 更进一步--HttpServlet类
+在实际开发中，用Servlet接口进行开发需要重写5个方法，且功能单一，对于复杂的需求无法实现。应而更多地使用，功能丰富，为http贴身定制的==HttpServlet类==
+![alt text](image-6.png)
+对于==HttpServlet==我们只需重写其中的**doGET**以及**doPOST**等等service方法，而其他的方法已经提前被该类写好，我们只需要写一个继承了httpservlet的子类即可。
+![alt text](image-7.png)
+![alt text](image-8.png)
+## 使用注解对Servlet进行自动化配置
+如上图所示，IDEA创建的servlet中存在一个名为==WebServlet==的注解，**其中注解包含了许多原来需要用xml技术配置的servlet信息。**
+![alt text](image-9.png)
+其原理是通过扫描包中的注解配置信息（被WebServlet注解的类），然后利用反射加载该类，得到注解信息，从而获取配置信息。
+### 四种URL匹配模式
+通过配置Servlet的url可以有效控制Servlet的作用域
+#### 1. 精准匹配 "/urlName"
+该匹配方式在访问时只能严格按照配置的url路径进行访问
+例如要访问下面的Servlet只能访问http://localhost:8080/myWeb1/ok
+```java
+    @WebServlet(name = "hiHttpServlet",urlPatterns = {"/hiHttpServlet"})
+public class hiHttpServlet extends HttpServlet {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+    }
+
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+    }
+}
+
+```
+#### 2. 目录匹配"/DirectoryName/* "
+目录匹配下，在访问该目录及其子节点时，都会调用该servlet
+**有效的访问**
+1. http://localhost:8080/myWeb1/myServlet (访问该目录)
+2. http://localhost:8080/myWeb1/myServlet/1 （访问该目录下任意节点）
+3. http://localhost:8080/myWeb1/myServlet/aa/1 （访问路径包含该目录的任意的路径）
+```java
+    @WebServlet(name = "hiHttpServlet",urlPatterns = {"/myServlet/*"})
+public class hiHttpServlet extends HttpServlet {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+    }
+
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+    }
+}
+
+```
+#### 3. 扩展名匹配 "*.extensionName"
+访问格式为：http://localhost:8080/myWeb1/anyDirectory.../anyName.extensionName
+只要最终访问路径含有对应的扩展名就会调用该servlet
+**注意** 不能写为"  /*.extensionName  ",这样会导致tomcat报错
+```java
+    @WebServlet(name = "hiHttpServlet",urlPatterns = {"*.action"})
+public class hiHttpServlet extends HttpServlet {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+    }
+
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+    }
+}
+
+```
+#### 4. 任意匹配 "/"  "/*"
+当采用这种匹配方式，输入任意的url地址都会调用该servlet。一般不推荐使用，因为会覆盖tomcat的初始配置中用于处理访问静态资源的default Servlet。如果采用会导致静态资源无法正常访问。
+![alt text](image-10.png)
+![alt text](image-11.png)
