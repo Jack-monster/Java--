@@ -41,3 +41,8 @@
 ![alt text](image-6.png)
 ### 状态码 304 浏览器缓存机制
 ![alt text](image-7.png)
+## MIME(Multipurpose Internet Mail Extensions)
+> MIME是HTTP协议中的一种表示传输文件格式的数据类型。MIME类型的格式是“大类型/小类型”，并与一种扩展名相对应
+> MIME类型通常在响应头中的Content-type中出现，这样浏览器就知道用什么样的格式去解析传输过来的响应体
+### 常见的MIME类型
+![alt text](image-8.png)
