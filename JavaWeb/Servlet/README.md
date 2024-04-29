@@ -188,3 +188,70 @@ public class hiHttpServlet extends HttpServlet {
 当采用这种匹配方式，输入任意的url地址都会调用该servlet。一般不推荐使用，因为会覆盖tomcat的初始配置中用于处理访问静态资源的default Servlet。如果采用会导致静态资源无法正常访问。
 ![alt text](image-10.png)
 ![alt text](image-11.png)
+## ServletConfig
+每一个Servlet创建时都会有相应的ServletConfig对象被创建，同时利用ServletConfig对其进行初始化
+![Servlet接口](image-13.png)
+通过ServletConfig我们可以得到对应的初始化参数，以及对应的Servlet名字和ServletContext。
+由于HttpServlet已经实现了ServletConfig接口，我们可以直接调用对应的ServletConfig中的方法得到相应的配置参数，例如：
+![alt text](image-15.png)
+## ServletContext
+ServletContext可以实现多个Servlet通信，用于表示Servlet的上下文对象
+![alt text](image-12.png)
+### ServletContext对象的特性
+1. **一个web工程，只有一个ServletContext对象实例**
+2. **ServletContext对象，在web工程启动时创建，在web工程停止时销毁**
+3. **获取ServletContext对象的引用，可以通过ServletConfig对象中定义的getServletContext()方法**
+4. **由于一个web中只有一个ServletContext对象，且允许所有Servlet对象访问，因而可以凭借ServletContext对象实现Servlet之间的通信。ServletContext对象也被称为域对象**
+### 域对象
+**所谓域对象，即可以在不同Servlet中进行数据传递的对象**
+#### 域对象的方法
+1. setAtrribute(name, value); 存储数据的方法
+2. getAttribute(name); 根据name获取对应数据的方法
+3. removeAttribute(name); 删除数据
+### ServletContext对象的作用
+1. **获取web工程配置的初始化参数getInitParameter()**
+   1. 配置web.xml中的上下文参数**context-param**(此信息只属于web工程)
+   ![alt text](image-16.png)
+   2. 利用getInitParameter()得到相应的配置参数
+    ![alt text](image-17.png)
+2. **获取项目的工程路径getContextPath()**
+3. **获取项目在服务器硬盘中的绝对路径getRealPath()**
+   ![alt text](image-18.png)
+## HttpServletRequest
+浏览器发送来的http请求都封装在这个对象中，可以通过调用这个对象，来获得请求信息。每次请求的Request对象都封装在Tomcat这个容器中，不是由某个具体的Servlet所拥有的。
+![alt text](image-19.png)
+### HttpServletRequest常用的方法
+![alt text](image-20.png)
+**其中getHeader(请求字段名)可以得到发送的实际请求中的字段内容**
+==需要注意的是==：HttpServletRequest也有setAttribute和getAttribute方法，说明其也是一个域对象，可以用来Servlet之间的通信
+### 获取Http传来的表单数据
+![alt text](image-21.png)
+### 一些小细节
+1. 如果获取参数出现乱码，应该设置Request的字符编码
+   ![alt text](image-22.png)
+2. 在利用Response返回时，也要设置ContentType，否则会出现乱码
+## 请求转发
+**之前学习的都是一次请求对应一个Servlet处理**
+![alt text](image-24.png)
+但当业务复杂时，需要对一次请求进行多次不同的处理，**就会需要用多个Servlet对功能进行拆分**
+![alt text](image-23.png)
+这时就需要进行让Servlet进行**请求转发**
+所谓请求转发，就是当一个web资源收到客户端的请求后，再通知服务器去调用另外一个web资源对该请求进行处理
+![alt text](image-25.png)
+### 实现请求转发
+1. **调用getRequestDispatcher()方法得到Request对象的分发器，其中参数填入下一个Servlet的工程地址**
+2. **调用forward的方法并将，Request和Response作为参数传入其中，即可完成分发**
+![alt text](image-26.png)
+### 请求转发小细节
+![alt text](image-27.png)
+## HttpServletResponse
+![alt text](image-28.png)
+![alt text](image-29.png)
+## 请求重定向
+![alt text](image-30.png)
+==注意== 在写重定向的servlet中本质上是需要由sendRedirect函数去直接返回相应的302返回消息，因而不应该在此Servlet中对Response进行更改或使用输出流
+![alt text](image-31.png)
+sendRedirect()函数中的参数与请求转发的参数格式不同，应该带上对应的web应用名，否则浏览器无法对其进行解析。
+==原因== ：sendRedirect()是通过在响应头里的location字段告知浏览器进行重新访问的，其中location字段的值即为函数参数，浏览器在收到location字段后，通过与host字段(本地服务器为：localhost:8080)进行拼接来得到重定向后访问的url
+![alt text](image-32.png)
+通过重定向也可以，使重新定向到外部的网站，例如重定向到百度，则直接在参数中输入百度的完整协议+域名即可
